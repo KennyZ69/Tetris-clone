@@ -24,7 +24,7 @@ int main() {
     time_t start, end;
 
     Game *game = init_game();
-    printf("Got the game\n");
+    // printf("Got the game\n");
     do {
         start = time(NULL);
         run(game);

@@ -1,4 +1,5 @@
 #include "../headers/scene.h"
+#include "../headers/game.h"
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -21,7 +22,7 @@ Scene *init_scene(Grid *grid, int edges, char **stats, int full, int stats_lines
     keypad(stdscr, true);
     noecho();
     cbreak();
-    start_color();
+    // start_color();
     refresh();
 
     return scene;
@@ -29,13 +30,18 @@ Scene *init_scene(Grid *grid, int edges, char **stats, int full, int stats_lines
 
 void draw_edges(const Scene *scene) {
     attron(COLOR_PAIR(BLUE));
-    for (int i = 0; i < scene->grid->rows + OFFSET * 2; i++) {
-        mvaddch(i, 0, VERT_EDGE);
-        mvaddch(i, scene->grid->cols + OFFSET, VERT_EDGE);
+    for (int i = 0; i < _ROWS + OFFSET * 2; i++) {
+	if (i == 0 || i == _ROWS + OFFSET) {
+		mvaddch(i, 0, '(');
+		mvaddch(i, 10 + OFFSET, ')');
+	} else {
+		mvaddch(i, 0, VERT_EDGE);
+		mvaddch(i, 10 + OFFSET, VERT_EDGE);
+	}
     }
-    for (int i = 0; i < scene->grid->cols; i++) {
+    for (int i = 0; i < _COLS ; i++) {
         mvaddch(0, i + OFFSET, HOR_EDGE);
-        mvaddch(scene->grid->rows + OFFSET, i + OFFSET, HOR_EDGE);
+        mvaddch(20 + OFFSET, i + OFFSET, HOR_EDGE);
     }
     attroff(COLOR_PAIR(BLUE));
 }
@@ -84,7 +90,7 @@ void draw_grid(const Scene *scene) {
 }
 
 void draw_stats(const Scene *scene) {
-    int offset = scene->grid->cols + 1 + (scene->edges) ? OFFSET * 2 : 0;
+    int offset = scene->grid->cols + 1 + OFFSET * 2;
 
     for (int i = 0; i < scene->stats_lines; i++) {
         mvaddstr(i, offset, scene->stats[i]);
@@ -92,7 +98,7 @@ void draw_stats(const Scene *scene) {
 }
 
 void clear_stats(const Scene *scene) {
-    int offset = scene->grid->cols + 1 + (scene->edges) ? OFFSET * 2 : 0;
+    int offset = scene->grid->cols + 1 + OFFSET * 2;
 
     for (int i = 0; i < scene->stats_lines; i++) {
         move(i, offset);

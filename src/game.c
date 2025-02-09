@@ -32,7 +32,7 @@ Game *init_game() {
 
 void reset_game(Game *game) {
     flush_grid(game->grid);
-    game->curr_obj->on_grid = false;
+    // game->curr_obj->on_grid = false; // WARN: This ends in a segfault because curr_obj hasn't been initialized yet
 
     game->next_idx = 0;
     next_object(game);
@@ -49,10 +49,10 @@ void reset_game(Game *game) {
 }
 
 void next_object(Game *game) {
-    if (game->next_idx == 0) {
-        // TODO:
-        // randomize the next shapes arr
-    }
+    // if (game->next_idx == 0) {
+    //     // TODO:
+    //     // randomize the next shapes arr
+    // }
 
     game->next_shape = game->next_shapes[game->next_idx];
     game->next_idx = (game->next_idx + 1) % NUM_SHAPES; // increase idx for next shape
@@ -60,7 +60,7 @@ void next_object(Game *game) {
 
 void run(Game *game) {
     // int lines;
-    printf("Running the game\n");
+    // printf("Running the game\n");
 
     while (!game->over) {
         update_stats(game);
