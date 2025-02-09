@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <stdio.h>
 #include <time.h>
 #include "../headers/game.h"
 
@@ -10,21 +11,20 @@ int main() {
     // curs_set(FALSE);      // Hide the cursor
     // keypad(stdscr, TRUE); // Enable arrow key input
     // timeout(100);         // Set game speed (100ms per frame)
+    // refresh();
     //
-    // while (1) {
-    //     clear();          // Clear screen
-    //     mvprintw(5, 10, "[]");  // Print test block
-    //     refresh();        // Update screen
+    // Game *game = init_game();
     //
-    //     int ch = getch();
-    //     if (ch == 'q') break;  // Exit game if 'q' is pressed
-    // }
+    // draw_edges(game->scene);
+    // refresh();
     //
+    // getch(); // wait for key press
     // endwin();             // End ncurses mode
 
     time_t start, end;
-    
+
     Game *game = init_game();
+    printf("Got the game\n");
     do {
         start = time(NULL);
         run(game);
