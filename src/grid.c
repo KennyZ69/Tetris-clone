@@ -52,3 +52,13 @@ void deinit_grid(Grid *grid) {
 int valid_pos(const Grid *grid, int row, int col) {
     return (row >= 0 && row < grid->rows && col >= 0 && col < grid->cols);
 }
+
+void move_row_down(Grid *grid, int row, int dest_row) {
+    for (int i = 0; i < grid->cols; i++) {
+        char temp1 = get_block(grid, row, i);
+        char temp2 = get_block(grid, dest_row, i);
+
+        grid->content[row * grid->cols + i] = temp2;
+        grid->content[dest_row * grid->cols + i] = temp1;
+    }
+}

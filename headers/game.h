@@ -6,6 +6,7 @@
 #include "objects.h"
 #include "scene.h"
 #include "action.h"
+#include "controls.h"
 #include <stdbool.h>
 
 // typedef int bool;
@@ -51,5 +52,7 @@ void deinit_game(Game *game);
 void reset_game(Game *game);
 
 void next_object(Game *game);
+
+int remove_line(Game *game);
 
 #endif

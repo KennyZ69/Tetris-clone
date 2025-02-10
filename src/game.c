@@ -8,6 +8,9 @@
 
 Actions get_action(int delay);
 void update_stats(Game *game);
+int spawn_object(Game *game);
+void pause(Game *game);
+void history_act(Game *game, Actions act);
 
 Game *init_game() {
     srand(time(NULL));
@@ -20,7 +23,7 @@ Game *init_game() {
     }
 
     game->grid = create_grid(_ROWS, _COLS);
-    // game->curr_obj = create_object();
+    game->curr_obj = create_object();
     game->scene = init_scene(game->grid, true, stats, true, STATS_COUNT);
     
     memcpy(game->next_shapes, shapes_letters, NUM_SHAPES);
@@ -32,7 +35,7 @@ Game *init_game() {
 
 void reset_game(Game *game) {
     flush_grid(game->grid);
-    // game->curr_obj->on_grid = false; // WARN: This ends in a segfault because curr_obj hasn't been initialized yet
+    game->curr_obj->on_grid = false;
 
     game->next_idx = 0;
     next_object(game);
@@ -43,32 +46,54 @@ void reset_game(Game *game) {
     game->delay = START_DELAY;
 
     game->hist_index = 0;
+    set_arr(DOWN, game->history, HISTORY_SIZE);
 
     game->over = false;
     game->paused = false;
 }
 
 void next_object(Game *game) {
-    // if (game->next_idx == 0) {
-    //     // TODO:
-    //     // randomize the next shapes arr
-    // }
+    if (game->next_idx == 0) {
+        rand_arr(game->next_shapes, NUM_SHAPES);
+    }
 
     game->next_shape = game->next_shapes[game->next_idx];
     game->next_idx = (game->next_idx + 1) % NUM_SHAPES; // increase idx for next shape
 }
 
 void run(Game *game) {
-    // int lines;
+    int lines;
     // printf("Running the game\n");
 
     while (!game->over) {
+        if (! game->curr_obj->on_grid) {
+            if ( ! spawn_object(game)) {
+                game->over = true;
+                continue;
+            }
+        }
         update_stats(game);
         refresh_scene(game->scene);
 
-        Actions act = get_action(game->delay);
-        if (act == PAUSE) {
-            game->paused = !game->paused;
+        if (!in_arr(DOWN, game->history, HISTORY_SIZE)) {
+            act(game->grid, game->curr_obj, DOWN);
+            history_act(game, DOWN);
+        } else {
+            Actions action = get_action(game->delay);
+            if (action == PAUSE) {
+                pause(game);
+                continue;
+            } else {
+                act(game->grid, game->curr_obj, action);
+                history_act(game, action);
+            }
+        }
+        if (game->curr_obj->locked_down) {
+            lines = remove_line(game);
+            if (lines) {
+                game->lines += lines;
+                // increase score and levels somehow now
+            }
         }
     }
 }
@@ -150,4 +175,69 @@ void update_stats(Game *game) {
         snprintf(game->scene->stats[6], STAT_LEN, "\n");
         snprintf(game->scene->stats[7], STAT_LEN, "\n");
     }
+}
+
+void update_next_shape(Game *game) {
+    if (game->next_idx == 0) {
+        rand_arr(game->next_shapes, NUM_SHAPES);
+    }
+    game->next_shape = game->next_shapes[game->next_idx];
+    game->next_idx = (game->next_idx + 1) % NUM_SHAPES;
+}
+
+int spawn_object(Game *game) {
+    set_arr(DOWN, game->history, HISTORY_SIZE);
+
+    change_shape(game->curr_obj, game->next_shape);
+
+    game->curr_obj->row = 0;
+    game->curr_obj->col = game->grid->cols / 2 - game->curr_obj->size / 2; // find the middle
+
+    // check if invalid position for new object somehow
+    if (!pos_check(game->grid, game->curr_obj, game->curr_obj->row, game->curr_obj->col)) {
+        return false;
+    }
+
+
+    put_object(game->grid, game->curr_obj, game->curr_obj->row, game->curr_obj->col);
+    update_next_shape(game);
+    return true;
+}
+
+void history_act(Game *game, Actions act) {
+    game->history[game->hist_index] = act;
+    game->hist_index = (game->hist_index + 1) % HISTORY_SIZE;
+}
+
+void pause(Game *game) {
+    game->paused = !game->paused;
+
+    update_stats(game);
+    refresh_scene(game->scene);
+
+    Actions act;
+
+    do {
+        act = get_action(-1);
+    } while (act != PAUSE || act != QUIT);
+
+    if (act == QUIT) {
+        game->over = true;
+    }
+    game->paused = false;
+}
+
+int remove_line(Game *game) {
+    int lines = 0;
+
+    for (int i = 0; i < game->grid->rows; i++) {
+        if (is_row(game->grid, i)) {
+            flush_row(game->grid, i);
+            lines++;
+            for (int j = i; j > 0; j--) {
+                move_row_down(game->grid, i, j - 1);
+            }
+        }
+    }
+    return lines;
 }
