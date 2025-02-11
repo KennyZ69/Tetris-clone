@@ -1,5 +1,7 @@
 #include "../headers/objects.h"
+#include <ncurses.h>
 #include <string.h>
+#include "../headers/controls.h"
 
 const char shapes_letters[NUM_SHAPES] = { 'I', 'J', 'L', 'O', 'S', 'T', 'Z' };
 
@@ -196,34 +198,42 @@ Object *create_object() {
 
 void change_shape(Object *obj, char letter) {
         int size, shape;
+        COLOR color;
         switch (letter) {
                 case 'I':
                         size = 4;
                         shape = 0;
+                        color = blue;
                         break;
                 case 'J':
                         size = 3;
                         shape = 1;
+                        color = yellow;
                         break;
                 case 'L':
                         size = 3;
                         shape = 2;
+                        color = white;
                         break;
                 case 'O':
                         size = 2;
                         shape = 3;
+                        color = green;
                         break;
                 case 'S':
                         size = 3;
                         shape = 4;
+                        color = red;
                         break;
                 case 'T':
                         size = 3;
                         shape = 5;
+                        color = cyan;
                         break;
                 case 'Z':
                         size = 3;
                         shape = 6;
+                        color = magen;
                         break;
                 default: 
                         return;
@@ -231,11 +241,12 @@ void change_shape(Object *obj, char letter) {
 
         obj->size = size;
         obj->rotation = 0;
-        obj->on_grid = 0;
+        obj->on_grid = FALSE;
         obj->row = 0;
         obj->col = 0;
-        obj->locked_down = 0;
-        memcpy(obj->shape, shapes[shape], 4 * 4 * sizeof(char));
+        obj->color = color;
+        obj->locked_down = FALSE;
+        memcpy(obj->shape, shapes[shape], 4 * 4 * NUM_ROTATIONS);
 }
 
 void put_object(Grid *grid, Object *obj, int row, int col) {
@@ -243,11 +254,11 @@ void put_object(Grid *grid, Object *obj, int row, int col) {
         for (int i = 0; i < obj->size; i++) {
                 for (int j = 0; j < obj->size; j++) {
                         if (obj->shape[obj->rotation][i][j]) {
-                                grid->content[(row + i) * grid->cols + (col + j)] = TEXTURE;
+                                fill_content(grid, TEXTURE, row + i, col + j);
                         }
                 }
         }
-        obj->on_grid = 1;
+        obj->on_grid = TRUE;
         obj->row = row;
         obj->col = col;
 }
@@ -258,11 +269,11 @@ void remove_object(Grid *grid, Object *obj) {
         for (int i = 0; i < obj->size; i++) {
                 for (int j = 0; j < obj->size; j++) {
                         if (obj->shape[obj->rotation][i][j]) {
-                                grid->content[(obj->row + i) * grid->cols + (obj->col + j)] = 0;
+                                flush_block(grid, obj->row + i, obj->col + j);
                         }
                 }
         }
-        obj->on_grid = 0;
+        obj->on_grid = FALSE;
 }
 
 void rotate_back(Object *obj) {

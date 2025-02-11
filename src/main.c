@@ -6,25 +6,10 @@
 void save_score(const char *filename, Game *game, time_t duration);
 
 int main() {
-    // initscr();            // Start ncurses mode
-    // noecho();             // Don't display key presses
-    // curs_set(FALSE);      // Hide the cursor
-    // keypad(stdscr, TRUE); // Enable arrow key input
-    // timeout(100);         // Set game speed (100ms per frame)
-    // refresh();
-    //
-    // Game *game = init_game();
-    //
-    // draw_edges(game->scene);
-    // refresh();
-    //
-    // getch(); // wait for key press
-    // endwin();             // End ncurses mode
 
     time_t start, end;
 
     Game *game = init_game();
-    // printf("Got the game\n");
     do {
         start = time(NULL);
         run(game);

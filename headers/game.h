@@ -16,7 +16,7 @@
 #define _ROWS 20
 #define _COLS 10
 #define START_DELAY 750
-#define HISTORY_SIZE 5
+#define HISTORY_SIZE 4
 #define STATS_COUNT 8
 #define STAT_LEN 50
 

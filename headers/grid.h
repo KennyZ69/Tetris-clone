@@ -3,6 +3,8 @@
 
 #include "utils.h"
 
+#define EMPTY_CONTENT 0;
+
 typedef struct {
 	int rows;
 	int cols;
@@ -30,5 +32,7 @@ void deinit_grid(Grid *grid);
 int valid_pos(const Grid *grid, int row, int col);
 
 void move_row_down(Grid *grid, int row, int dest_row);
+
+void fill_content(Grid *grid, char content, int row, int col);
 
 #endif

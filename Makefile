@@ -24,7 +24,7 @@ $(OUTDIR)/$(EXENAME): $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -rf $(OUTDIR)
+	rm -rf $(OUTDIR) scores.txt
 
 .PHONY: run
 run:

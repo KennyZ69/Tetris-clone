@@ -45,8 +45,8 @@ void reset_game(Game *game) {
     game->lines = 0;
     game->delay = START_DELAY;
 
-    game->hist_index = 0;
     set_arr(DOWN, game->history, HISTORY_SIZE);
+    game->hist_index = 0;
 
     game->over = false;
     game->paused = false;
@@ -63,7 +63,7 @@ void next_object(Game *game) {
 
 void run(Game *game) {
     int lines;
-    // printf("Running the game\n");
+    Actions action;
 
     while (!game->over) {
         if (! game->curr_obj->on_grid) {
@@ -79,7 +79,7 @@ void run(Game *game) {
             act(game->grid, game->curr_obj, DOWN);
             history_act(game, DOWN);
         } else {
-            Actions action = get_action(game->delay);
+            action = get_action(game->delay);
             if (action == PAUSE) {
                 pause(game);
                 continue;
@@ -96,6 +96,7 @@ void run(Game *game) {
             }
         }
     }
+    return;
 }
 
 Actions game_over(Game *game) {
@@ -193,7 +194,6 @@ int spawn_object(Game *game) {
     game->curr_obj->row = 0;
     game->curr_obj->col = game->grid->cols / 2 - game->curr_obj->size / 2; // find the middle
 
-    // check if invalid position for new object somehow
     if (!pos_check(game->grid, game->curr_obj, game->curr_obj->row, game->curr_obj->col)) {
         return false;
     }

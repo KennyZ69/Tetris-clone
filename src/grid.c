@@ -1,4 +1,5 @@
 #include "../headers/grid.h"
+#include <ncurses.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -6,7 +7,7 @@ Grid *create_grid(int rows, int cols) {
     Grid *grid = safe_malloc(sizeof(*grid));
     grid->rows = rows;
     grid->cols = cols;
-    grid->content = safe_malloc(rows * cols * sizeof(char));
+    grid->content = safe_malloc(rows * cols * sizeof(*grid->content));
 
     flush_grid(grid);
 
@@ -14,7 +15,10 @@ Grid *create_grid(int rows, int cols) {
 }
 
 int empty_pos(const Grid *grid, int row, int col) {
-    return get_block(grid, row, col) == ' ';
+    if (get_block(grid, row, col) == ' ') {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 char get_block(const Grid *grid, int row, int col) {
@@ -30,6 +34,7 @@ int is_row(const Grid *grid, int row) {
 
 void flush_block(Grid *grid, int row, int col) {
     grid->content[row * grid->cols + col] = ' ';
+    // grid->content[row * grid->cols + col] = EMPTY_CONTENT;
 }
 
 void flush_row(Grid *grid, int row) {
@@ -58,7 +63,13 @@ void move_row_down(Grid *grid, int row, int dest_row) {
         char temp1 = get_block(grid, row, i);
         char temp2 = get_block(grid, dest_row, i);
 
-        grid->content[row * grid->cols + i] = temp2;
-        grid->content[dest_row * grid->cols + i] = temp1;
+        fill_content(grid, temp1, dest_row, i);
+        fill_content(grid, temp2, row, i);
+        // flush_block(grid, row, i);
     }
+}
+
+void fill_content(Grid *grid, char content, int row, int col) {
+    grid->content[row * grid->cols + col] = content;
+    // grid->color[row * grid->cols + col] = color;
 }

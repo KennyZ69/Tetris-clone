@@ -1,14 +1,17 @@
 #include "../headers/controls.h"
+#include <ncurses.h>
+#include <stdbool.h>
 
 int pos_check(const Grid *grid, Object *obj, int row, int col) {
     for (int i = 0; i < obj->size; i++) {
         for (int j = 0; j < obj->size; j++) {
-            if (obj->shape[obj->rotation][i][j] && (! valid_pos(grid, row, col) || ! empty_pos(grid, row, col))) {
-                return 0;
+            if (obj->shape[obj->rotation][i][j] && 
+                (! valid_pos(grid, row + i, col + j) || ! empty_pos(grid, row + i, col + j))) {
+                return FALSE;
             }
         }
     }
-    return 1;
+    return TRUE;
 }
 
 int act(Grid *grid, Object *obj, Actions action) {
@@ -31,11 +34,10 @@ int rotate(Grid *grid, Object *obj) {
     rotate_forward(obj);
     if (! pos_check(grid, obj, obj->row, obj->col)) {
         rotate_back(obj);
-        put_object(grid, obj, obj->row, obj->col);
-        return 0;
+        return false;
     }
     put_object(grid, obj, obj->row, obj->col);
-    return 1;
+    return true;
 }
 
 int move_obj(Grid *grid, Object *obj, Actions action) {
@@ -53,24 +55,24 @@ int move_obj(Grid *grid, Object *obj, Actions action) {
             col++;
             break;
         default:
-            return 0;
+            return FALSE;
     }
     if (! pos_check(grid, obj, row, col)) {
-        put_object(grid, obj, obj->row, obj->col);
+        put_object(grid, obj, row, col);
 
         if (action == DOWN) {
-            obj->locked_down = 1;
-            obj->on_grid = 0;
+            obj->locked_down = TRUE;
+            obj->on_grid = FALSE;
         }
-        return 0;
+        return FALSE;
     }
-    put_object(grid, obj, obj->row, obj->col); // assigning the position to the object in the func
-    return 1;
+    put_object(grid, obj, row, col); // assigning the position to the object in the func
+    return TRUE;
 }
 
 int drop_obj(Grid *grid, Object *obj) {
     while (!obj->locked_down) {
         move_obj(grid, obj, DOWN);
     }
-    return 1;
+    return FALSE;
 }

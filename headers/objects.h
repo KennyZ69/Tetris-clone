@@ -3,6 +3,7 @@
 
 #include "grid.h"
 #include "utils.h"
+#include <ncurses.h>
 
 #define NUM_SHAPES 7
 #define NUM_ROTATIONS 4
@@ -10,6 +11,17 @@
 
 extern const char shapes_letters[NUM_SHAPES];
 extern const char shapes[NUM_SHAPES][NUM_ROTATIONS][4][4];
+
+typedef enum {
+	black = COLOR_BLACK,
+	red = COLOR_RED,
+	blue = COLOR_BLUE,
+	magen = COLOR_MAGENTA,
+	white = COLOR_WHITE,
+	yellow = COLOR_YELLOW,
+	cyan = COLOR_CYAN,
+	green = COLOR_GREEN,
+} COLOR;
 
 typedef struct {
 	int size;
@@ -19,6 +31,8 @@ typedef struct {
 	int col;
 	int locked_down;
 	char shape[NUM_ROTATIONS][4][4];
+	// could have color If I want it with colors
+	COLOR color;
 } Object;
 
 // create and return a pointer to new object for the game

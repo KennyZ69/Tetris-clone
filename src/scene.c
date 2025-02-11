@@ -13,17 +13,31 @@ Scene *init_scene(Grid *grid, int edges, char **stats, int full, int stats_lines
     scene->stats_lines = stats_lines;
     scene->full = full;
 
-    // TODO:
-    // make also stats for the scene (as in infos)
-    // I mean inside the header and apply it into the init_game()
-
     initscr();
-    curs_set(false);
-    keypad(stdscr, true);
+    curs_set(FALSE);
+    keypad(stdscr, TRUE);
     noecho();
     cbreak();
-    // start_color();
+    start_color();
     refresh();
+
+    if (scene->full) {
+        init_pair(1, COLOR_RED,     COLOR_RED);
+        init_pair(2, COLOR_GREEN,   COLOR_GREEN);
+        init_pair(3, COLOR_YELLOW,  COLOR_YELLOW);
+        init_pair(4, COLOR_BLUE,    COLOR_BLUE);
+        init_pair(5, COLOR_MAGENTA, COLOR_MAGENTA);
+        init_pair(6, COLOR_CYAN,    COLOR_CYAN);
+        init_pair(7, COLOR_WHITE,   COLOR_WHITE);
+    } else {
+        init_pair(1, COLOR_RED,     COLOR_BLACK);
+        init_pair(2, COLOR_GREEN,   COLOR_BLACK);
+        init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
+        init_pair(4, COLOR_BLUE,    COLOR_BLACK);
+        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(6, COLOR_CYAN,    COLOR_BLACK);
+        init_pair(7, COLOR_WHITE,   COLOR_BLACK);
+        }
 
     return scene;
 }
@@ -33,15 +47,15 @@ void draw_edges(const Scene *scene) {
     for (int i = 0; i < _ROWS + OFFSET * 2; i++) {
 	if (i == 0 || i == _ROWS + OFFSET) {
 		mvaddch(i, 0, '(');
-		mvaddch(i, 10 + OFFSET, ')');
+		mvaddch(i, _COLS + OFFSET, ')');
 	} else {
 		mvaddch(i, 0, VERT_EDGE);
-		mvaddch(i, 10 + OFFSET, VERT_EDGE);
+		mvaddch(i, _COLS + OFFSET, VERT_EDGE);
 	}
     }
     for (int i = 0; i < _COLS ; i++) {
         mvaddch(0, i + OFFSET, HOR_EDGE);
-        mvaddch(20 + OFFSET, i + OFFSET, HOR_EDGE);
+        mvaddch(_ROWS + OFFSET, i + OFFSET, HOR_EDGE);
     }
     attroff(COLOR_PAIR(BLUE));
 }
