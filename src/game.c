@@ -89,37 +89,40 @@ void run(Game *game) {
             }
         }
         if (game->curr_obj->locked_down) {
-            lines = remove_line(game);
+            lines = remove_line(game); // check whether there is a line to get
             if (lines) {
                 game->lines += lines;
                 // increase score and levels somehow now
             }
         }
     }
-    return;
 }
 
 Actions game_over(Game *game) {
-    Actions act;
+    Actions action;
     game->over = true;
 
+    update_stats(game);
     refresh_scene(game->scene);
 
     do {
-        act = get_action(-1);
-    } while (act != NEW_GAME && act != QUIT);
+        action = get_action(-1);
+    } while (action != NEW_GAME && action != QUIT);
 
-    if (act == NEW_GAME) reset_game(game);
+    if (action == NEW_GAME) reset_game(game);
 
-    return act;
+    return action;
 }
 
 void deinit_game(Game *game) {
 
+    deinit_grid(game->grid);
     free(game->curr_obj);
+    for (int i = 0; i < STATS_COUNT; i++) {
+        free(game->scene->stats[i]);
+    }
     free(game->scene->stats);
 
-    deinit_grid(game->grid);
     deinit_scene(game->scene);
 
     free(game);
@@ -167,7 +170,7 @@ void update_stats(Game *game) {
     if (game->paused || game->over) {
         if (game->paused) {
             snprintf(game->scene->stats[6], STAT_LEN, "Game is PAUSED!");
-            snprintf(game->scene->stats[7], STAT_LEN, "Press 'p' to continue or 'q' to quit");
+            snprintf(game->scene->stats[7], STAT_LEN, "Press 'p' to continue or 'x' to end current game");
         } else {
             snprintf(game->scene->stats[6], STAT_LEN, "GAME OVER!");
             snprintf(game->scene->stats[7], STAT_LEN, "Press 'n' for new game or 'q' to quit");
@@ -176,14 +179,6 @@ void update_stats(Game *game) {
         snprintf(game->scene->stats[6], STAT_LEN, "\n");
         snprintf(game->scene->stats[7], STAT_LEN, "\n");
     }
-}
-
-void update_next_shape(Game *game) {
-    if (game->next_idx == 0) {
-        rand_arr(game->next_shapes, NUM_SHAPES);
-    }
-    game->next_shape = game->next_shapes[game->next_idx];
-    game->next_idx = (game->next_idx + 1) % NUM_SHAPES;
 }
 
 int spawn_object(Game *game) {
@@ -198,30 +193,29 @@ int spawn_object(Game *game) {
         return false;
     }
 
-
     put_object(game->grid, game->curr_obj, game->curr_obj->row, game->curr_obj->col);
-    update_next_shape(game);
+    next_object(game);
     return true;
 }
 
-void history_act(Game *game, Actions act) {
-    game->history[game->hist_index] = act;
+void history_act(Game *game, Actions action) {
+    game->history[game->hist_index] = action;
     game->hist_index = (game->hist_index + 1) % HISTORY_SIZE;
 }
 
 void pause(Game *game) {
-    game->paused = !game->paused;
+    game->paused = true;
 
     update_stats(game);
     refresh_scene(game->scene);
 
-    Actions act;
+    Actions action;
 
     do {
-        act = get_action(-1);
-    } while (act != PAUSE || act != QUIT);
+        action = get_action(-1);
+    } while (action != PAUSE && action != END_GAME);
 
-    if (act == QUIT) {
+    if (action == END_GAME) {
         game->over = true;
     }
     game->paused = false;
@@ -235,9 +229,17 @@ int remove_line(Game *game) {
             flush_row(game->grid, i);
             lines++;
             for (int j = i; j > 0; j--) {
-                move_row_down(game->grid, i, j - 1);
+                move_row_down(game->grid, j, j - 1);
             }
         }
     }
     return lines;
+}
+
+void inc_lvl(Game *game) {
+
+}
+
+void inc_score(Game *game, int lines) {
+
 }

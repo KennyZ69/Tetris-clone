@@ -18,7 +18,7 @@
 #define START_DELAY 750
 #define HISTORY_SIZE 4
 #define STATS_COUNT 8
-#define STAT_LEN 50
+#define STAT_LEN 70
 
 typedef struct {
 	Grid *grid;
@@ -54,5 +54,9 @@ void reset_game(Game *game);
 void next_object(Game *game);
 
 int remove_line(Game *game);
+
+void inc_lvl(Game *game);
+
+void inc_score(Game *game, int lines);
 
 #endif

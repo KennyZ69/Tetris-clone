@@ -25,7 +25,7 @@ int act(Grid *grid, Object *obj, Actions action) {
         case DROP:
             return drop_obj(grid, obj);
         default:
-            return 0;
+            return false;
     }
 }
 
@@ -34,6 +34,7 @@ int rotate(Grid *grid, Object *obj) {
     rotate_forward(obj);
     if (! pos_check(grid, obj, obj->row, obj->col)) {
         rotate_back(obj);
+        put_object(grid, obj, obj->row, obj->col);
         return false;
     }
     put_object(grid, obj, obj->row, obj->col);
@@ -58,7 +59,9 @@ int move_obj(Grid *grid, Object *obj, Actions action) {
             return FALSE;
     }
     if (! pos_check(grid, obj, row, col)) {
-        put_object(grid, obj, row, col);
+        put_object(grid, obj, obj->row, obj->col); 
+        // FIXED: This was assigning the future position even though it was not valid position
+        // Finally!!
 
         if (action == DOWN) {
             obj->locked_down = TRUE;
@@ -74,5 +77,5 @@ int drop_obj(Grid *grid, Object *obj) {
     while (!obj->locked_down) {
         move_obj(grid, obj, DOWN);
     }
-    return FALSE;
+    return TRUE;
 }
