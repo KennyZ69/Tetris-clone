@@ -93,6 +93,8 @@ void run(Game *game) {
             if (lines) {
                 game->lines += lines;
                 // increase score and levels somehow now
+                inc_lvl(game);
+                inc_score(game, lines);
             }
         }
     }
@@ -237,9 +239,39 @@ int remove_line(Game *game) {
 }
 
 void inc_lvl(Game *game) {
+    int lvl = (game->lines / 10) + 1;
 
+    if (lvl <= game->lvl) return;
+
+    game->lvl = lvl;
+
+    if (game->delay > 200) {
+        game->delay -= 100;
+    } else if (game->delay > 150){
+        game->delay -= 5;
+    }
 }
 
 void inc_score(Game *game, int lines) {
+    int points = 0;
 
+    // give points to player based on how many rows at once they got 
+    switch (lines) {
+        case 1:
+            points = 40;
+            break;
+        case 2:
+            points = 240;
+            break;
+        case 3:
+            points = 840;
+            break;
+        case 4:
+            points = 1040;
+            break;
+        default:
+            break;
+    }
+
+    game->score += points * (game->lvl + 1);
 }
